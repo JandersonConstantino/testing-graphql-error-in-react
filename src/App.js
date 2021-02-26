@@ -1,23 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { gql, useMutation } from "@apollo/client";
 
-function App() {
+export const DEFINE_NICKNAME = gql`
+  mutation DefineNickname($nickname: String!) {
+    defineNickname(nickname: $nickname) {
+      nickname
+    }
+  }
+`;
+
+function App({ onSuccess, onError }) {
+  const [nickname, setNickname] = React.useState("");
+  const [defineNickname, { loading }] = useMutation(DEFINE_NICKNAME);
+
+  const onSubmit = async () => {
+    try {
+      const data = await defineNickname({ variables: { nickname } });
+      onSuccess(data);
+    } catch (error) {
+      onError(error);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <label id="label-nickname" htmlFor="input-nickname">
+        Nickname
+      </label>
+      <input
+        id="input-nickname"
+        data-testid="input-nickname"
+        placeholder="Preencha seu nickname"
+        value={nickname}
+        onChange={(e) => setNickname(e.target.value)}
+        disabled={loading}
+      />
+      <button
+        id="button-submit"
+        data-testid="button-submit"
+        onClick={onSubmit}
+        disabled={loading}
+      >
+        Next
+      </button>
     </div>
   );
 }
